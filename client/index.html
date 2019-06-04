@@ -1,0 +1,87 @@
+<html>
+    <head>
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+            <!-- Latest compiled and minified CSS -->
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+            <script>
+                var API_URL = "http://localhost:8887/";
+                var previousResult = "";
+                function doPoll(){
+                    var mac = $("#mac").val();
+                    //00:d3:30:9b:98:00
+                    $.ajax(API_URL+'?mac='+mac, 
+                    {
+                        dataType: 'json', // type of response data
+                        timeout: 500,     // timeout milliseconds
+                        success: function (data,status,xhr) {   // success callback function
+                            console.log(data);
+                            if(JSON.stringify(data) != "{}" && JSON.stringify(data) != previousResult){
+                                try{
+                                    previousResult = JSON.stringify(data);
+                                    var row = getRow(data);
+                                    //$('p').append(data.firstName + ' ' + data.middleName + ' ' + data.lastName);
+                                    $(row).prependTo("table > tbody");
+                                }catch(e){
+                                    console.log("error while reading data");
+                                }
+
+                            }
+                        },
+                        error: function (jqXhr, textStatus, errorMessage) { // error callback 
+                            //$('p').append('Error: ' + errorMessage);
+                            console.error("error");
+                        }
+                    });
+                    setTimeout(doPoll,2000);
+                }
+
+                function getRow(data){
+                    var row = "<tr>";
+                    row += "<td>"+data.deviceLocationUpdate.visitId+"</td>";
+                    row += "<td>"+data.deviceLocationUpdate.location.locationId+"</td>";
+                    row += "<td>"+data.deviceLocationUpdate.location.name+"</td>";
+                    row += "<td>"+data.deviceLocationUpdate.xPos+"</td>";
+                    row += "<td>"+data.deviceLocationUpdate.yPos+"</td>";
+                    row += "<td>"+data.deviceLocationUpdate.latitude+"</td>";
+                    row += "<td>"+data.deviceLocationUpdate.longitude+"</td>";
+                    row += "<td>"+data.deviceLocationUpdate.ssid+"</td>";
+                    row += "<td>"+data.deviceLocationUpdate.location.inferredLocationTypes[0]+"</td>";
+                    row += "</tr>";
+                    return row;
+                }
+            </script>
+    </head>
+    <body>
+
+
+<div class="container">
+    <div class="row">
+
+            <div class="col"><input type="text" id="mac" placeholder="client mac"></div>
+            <div class="col"><input type="button" value="start polling" onclick="doPoll()"></div>
+    </div>
+
+    <div class="row">
+        <h2>Detect And Locates</h2>        
+        <table class="table">
+          <thead>
+            <tr>
+              <th>visitId</th>
+              <th>locationId</th>
+              <th>location name</th>
+              <th>x pos</th>
+              <th>y pos</th>
+              <th>longitude</th>
+              <th>latitude</th>
+              <th>ssid</th>
+              <th>location type</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+      </div>
+    </body>
+</html>
