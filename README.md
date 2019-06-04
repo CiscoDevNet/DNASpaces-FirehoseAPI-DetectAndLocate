@@ -1,2 +1,3 @@
 # FirehoseAPI-Sample-DetectAndLocate
-This is a sample application for consuming "Location Update" Event of the Cisco DNA Spaces Firehose API. It also provides a reference implementation of detect and locate use case.
+
+To realise the use case "Detect and Locate", this sample application for consumes "Location Update" Event of the Cisco DNA Spaces Firehose API. This can be used as a starting point and reference for consuming the Cisco DNA Spaces Firehose API events.
