@@ -19,6 +19,7 @@
                             if(JSON.stringify(data) != "{}" && JSON.stringify(data) != previousResult){
                                 try{
                                     previousResult = JSON.stringify(data);
+                                    updateUserDetails(data);
                                     var row = getRow(data);
                                     //$('p').append(data.firstName + ' ' + data.middleName + ' ' + data.lastName);
                                     $(row).prependTo("table > tbody");
@@ -50,37 +51,75 @@
                     row += "</tr>";
                     return row;
                 }
+
+                function updateUserDetails(data){
+                    $("#userDetail, #locationDetail").show();
+                    $("#firstName").text(data.deviceLocationUpdate.device.firstName);
+                    $("#lastName").text(data.deviceLocationUpdate.device.lastName);
+                    $("#mail").text(data.deviceLocationUpdate.device.email);
+                    $("#phone").text(data.deviceLocationUpdate.device.mobile);
+                    $("#gender").text(data.deviceLocationUpdate.device.gender);
+                }
             </script>
+            <style>
+            #userDetail, #locationDetail{
+                display: none;
+            }
+            </style>
     </head>
     <body>
 
 
-<div class="container">
-    <div class="row">
+<div class="container" style="margin: 20px auto;">
 
-            <div class="col"><input type="text" id="mac" placeholder="client mac"></div>
-            <div class="col"><input type="button" value="start polling" onclick="doPoll()"></div>
-    </div>
+        <h2>Detect And Locate</h2>     
+        <div class="row">
+    
+                <div class="col"><input type="text" id="mac" placeholder="client mac" value="00:e0:ad:50:26:00"></div>
+                <div class="col"><input type="button" value="Detect and Locate" onclick="doPoll()"></div>
+        </div>
 
     <div class="row">
-        <h2>Detect And Locates</h2>        
-        <table class="table">
-          <thead>
-            <tr>
-              <th>visitId</th>
-              <th>locationId</th>
-              <th>location name</th>
-              <th>x pos</th>
-              <th>y pos</th>
-              <th>longitude</th>
-              <th>latitude</th>
-              <th>ssid</th>
-              <th>location type</th>
-            </tr>
-          </thead>
-          <tbody>
-          </tbody>
-        </table>
+        
+        <div class="container" id="userDetail" style="margin-top: 10px">
+            <div class="row">
+                    <div class="col">First Name</div>
+                    <div class="col" id="firstName"></div>
+                    <div class="col">Mail</div>
+                    <div class="col" id="mail"></div>
+            </div>
+            <div class="row">
+                    <div class="col">Last Name</div>
+                    <div class="col" id="lastName"></div>
+                    <div class="col">Phone</div>
+                    <div class="col" id="phone"></div>
+            </div>
+            <div class="row">
+                    <div class="col">Gender</div>
+                    <div class="col" id="gender"></div>
+                    <div class="col"></div>
+                    <div class="col"></div>
+            </div>
+        </div>  
+        <div class="container"  id="locationDetail" style="margin-top: 10px">
+            <table class="table">
+            <thead>
+                <tr>
+                <th>visitId</th>
+                <th>locationId</th>
+                <th>location name</th>
+                <th>x pos</th>
+                <th>y pos</th>
+                <th>longitude</th>
+                <th>latitude</th>
+                <th>ssid</th>
+                <th>location type</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            </table>
+        </div> 
       </div>
       </div>
     </body>
