@@ -1,0 +1,5 @@
+<div class="img-map" #container (window:resize)="onResize($event)">
+  <img #image [src]="src" (load)="onLoad($event)" style="-webkit-transform: rotate(180deg); ">
+  <canvas #canvas ></canvas>
+  <!-- (click)="onClick($event)" (mousemove)="onMousemove($event)" (mouseout)="onMouseout($event)" -->
+</div>

@@ -1,0 +1,32 @@
+<div class="container" *ngIf="locationUpdates.length > 0">
+  <div class="row">     
+      <table class="table">
+        <thead>
+          <tr>
+            <th>visitId</th>
+            <th>locationId</th>
+            <th>location name</th>
+            <th>x pos</th>
+            <th>y pos</th>
+            <th>longitude</th>
+            <th>latitude</th>
+            <th>ssid</th>
+            <th>location type</th>
+          </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let update of locationUpdates.slice().reverse() ">
+                <td>{{update.deviceLocationUpdate.visitId}}</td>
+                <td>{{update.deviceLocationUpdate.location.locationId}}</td>
+                <td>{{update.deviceLocationUpdate.location.name}}</td>
+                <td>{{update.deviceLocationUpdate.xPos}}</td>
+                <td>{{update.deviceLocationUpdate.yPos}}</td>
+                <td>{{update.deviceLocationUpdate.latitude}}</td>
+                <td>{{update.deviceLocationUpdate.longitude}}</td>
+                <td>{{update.deviceLocationUpdate.ssid}}</td>
+                <td>{{update.deviceLocationUpdate.location.inferredLocationTypes[0]}}</td>
+              </tr>
+        </tbody>
+      </table>
+    </div>
+    </div>

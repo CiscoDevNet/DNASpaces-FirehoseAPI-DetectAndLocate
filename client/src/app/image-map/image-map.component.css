@@ -1,0 +1,15 @@
+.img-map { 
+    position: relative; 
+}
+
+.img-map canvas, .img-map img { 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+}
+
+.img-map img { 
+    display: block; 
+    height: auto; 
+    max-width: 100%; 
+}

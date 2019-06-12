@@ -1,0 +1,29 @@
+<div class="container">
+
+    <h2>Detect And Locates</h2>   
+  <div class="row">
+    
+      <div class="col">
+    <input type="text" [value]="macAddressTemp" placeholder="Mac Address" (keyup)="onMacKeyup($event)" />
+    </div>
+    <div class="col">
+        <button (click)="submit($event)">Update</button>
+      </div>
+      <div class="col" *ngIf="markers.length > 0">
+          <button (click)="clearMarkers($event)" >Clear Markers</button>
+        </div>
+        <div class="col-6">
+           
+          </div>
+  </div>
+</div>
+<br>
+<div class="container" *ngIf="imageId != null">
+    <div class="row">
+        <div class="col">
+      <app-image-map #imgMap src="http://localhost:9090/api/partners/v1/maps/{{imageId}}/image" markerRadius="3" [markers]="markers" (mark)="onMark($event)"
+      (change)="onChange($event)"></app-image-map>
+    </div>
+  </div>
+</div>
+<app-location-update-listing [locationUpdates]="locationUpdates"></app-location-update-listing>
