@@ -1,13 +1,13 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
-import { ImageMapComponent } from './image-map/image-map.component';
+import { Component, ViewChild } from '@angular/core';
 import { LocationService } from './services/location/location.service';
+import { ImageMapComponent } from './image-map/image-map.component';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   @ViewChild('imgMap')
   imgMap: ImageMapComponent;
   markers: number[][] = [];
@@ -28,9 +28,7 @@ export class AppComponent implements OnInit {
   setTimeOutMillis = 5000;
   locationUpdates = [];
 
-  constructor(
-    private locationService: LocationService
-  ) { }
+  constructor(private locationService: LocationService) { }
 
   ngOnInit() {
 

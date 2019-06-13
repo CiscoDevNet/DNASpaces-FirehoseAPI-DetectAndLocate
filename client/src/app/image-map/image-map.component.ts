@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, Output, Renderer, ViewChild, OnInit } from '@angular/core';
+import { Component, OnInit, Renderer, EventEmitter, Output, Input, ViewChild, ElementRef } from '@angular/core';
 
 @Component({
   selector: 'app-image-map',
@@ -6,7 +6,6 @@ import { Component, ElementRef, EventEmitter, Input, Output, Renderer, ViewChild
   styleUrls: ['./image-map.component.css']
 })
 export class ImageMapComponent implements OnInit {
-
 
   totalX = 207.36; //ft 63.20m
   totalY = 105.59; //ft 32.19m

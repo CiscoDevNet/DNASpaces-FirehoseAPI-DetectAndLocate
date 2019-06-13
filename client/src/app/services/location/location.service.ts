@@ -1,18 +1,17 @@
 import { Injectable } from '@angular/core';
-import { Http, Response, Headers, URLSearchParams, RequestOptions } from '@angular/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/catch';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class LocationService {
-
   serverUrl: string = 'http://localhost:8887/';
   apiUrl : string = "http://localhost:9090/";
   apiKey : string = "{{API_KEY}}";
 
   constructor(
-    private http: Http,
+    private http: HttpClient,
   ) {
   }
 
@@ -29,11 +28,9 @@ export class LocationService {
   getLocationUpdate(macAddress: string): Observable<any> {
     let headers = new Headers();
     headers.append('Content-Type', "application/json");
-    let opts = new RequestOptions();
-    opts.headers = headers;
-    return this.http.get(this.serverUrl + '?mac=' + macAddress)
-      .map(this.extractData)
-      .catch(this.handleErrorObservable);
+    return this.http.get(this.serverUrl + '?mac=' + macAddress);
+      // .map(this.extractData)
+      // .catch(this.handleErrorObservable);
   }
 
   getImageInfo(imageId : string):Observable<any>{
@@ -42,9 +39,9 @@ export class LocationService {
     headers.append('X-API-KEY', this.apiKey);
     // let opts = new RequestOptions();
     // opts.headers = headers;
-    return this.http.get(this.apiUrl+'api/partners/v1/maps/' + imageId,{ headers: headers })
-      .map(this.extractData)
-      .catch(this.handleErrorObservable);
+    return this.http.get(this.apiUrl+'api/partners/v1/maps/' + imageId)
+      // .map(this.extractData)
+      // .catch(this.handleErrorObservable);
   }
 
-}    
+}
