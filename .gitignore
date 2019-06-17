@@ -34,3 +34,5 @@ server/target/
 
 #Properties
 server/src/main/resources/app.properties
+client/proxy-server/proxy-server.properties
+client/src/environments/environment.ts
