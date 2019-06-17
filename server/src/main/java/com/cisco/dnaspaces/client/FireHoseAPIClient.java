@@ -98,6 +98,7 @@ public class FireHoseAPIClient implements Closeable {
 
     private HttpGet getRequest(String url) throws URISyntaxException{
         URIBuilder uriBuilder = new URIBuilder(url);
+        uriBuilder.setPath("/api/partners/v1/firehose/events");
         if (this.consumer.getLastSuccessTimeStamp() > 0)
             uriBuilder.setParameter("fromTimestamp", String.valueOf(this.getFromTimeStamp()));
         HttpGet request = new HttpGet(uriBuilder.build());
