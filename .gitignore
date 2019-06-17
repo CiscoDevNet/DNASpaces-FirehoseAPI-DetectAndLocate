@@ -30,3 +30,7 @@ hs_err_pid*
 
 # Build Directories #
 server/target/
+
+
+#Properties
+server/src/main/resources/app.properties
