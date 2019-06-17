@@ -13,7 +13,7 @@ The API Server consumes "Device Location Update" event and keeps updating Redis 
 
 ### Steps to run the API Server application
 1) Clone the Repository server folder
-2) Update app.properties file (/server/src/main/resources/app.properties) with appropriate values. All the below mentioned properties are mandatory.
+2) Rename or copy /server/src/main/resources/app.default.properties file to /server/src/main/resources/app.properties and Update app.properties file (/server/src/main/resources/app.properties) with appropriate values. All the below mentioned properties are mandatory.
 ```properties
 
 api.key={{Firehose API Key}}
@@ -31,7 +31,7 @@ Proxy Server is used to avoid CORS restriction while using the partners api for 
 
 ### Steps to run the Proxy Server application
 1) Clone the Repository client folder
-2) Rename or copy /proxy-server/proxy-server.template.properties file to /proxy-server/proxy-server.properties and update below mentioned properties with appropriate Partners API details
+2) Rename or copy /proxy-server/proxy-server.default.properties file to /proxy-server/proxy-server.properties and update below mentioned properties with appropriate Partners API details
 ```properties
 
 apiserver.host={{Partners API Host}}
@@ -39,6 +39,7 @@ apiserver.apikey={{Partners API Key}}
 
 ```
 3) In console move to /client directory of project
+4) Run command ```npm install```
 4) Start the node server using command ```node server```
 
 ## 3) Client
@@ -47,7 +48,7 @@ The client application provides an UI to enter MAC address of client and when us
 
 ### Steps to run the Client application
 1) Clone the Repository client folder
-2) Rename or copy /client/src/environments/environment.template.ts file to /client/src/environments/environment.ts and update below mentioned properties with appropriate Partners API details
+2) Rename or copy /client/src/environments/environment.default.ts file to /client/src/environments/environment.ts and update below mentioned properties with appropriate Partners API details
 ```json
   {
   "apiUrl":"{{API Server url}}",
