@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { LocationService } from './services/location/location.service';
 import { ImageMapComponent } from './image-map/image-map.component';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -8,6 +9,8 @@ import { ImageMapComponent } from './image-map/image-map.component';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
+
+  env = environment;
   @ViewChild('imgMap')
   imgMap: ImageMapComponent;
   markers: number[][] = [];
@@ -16,6 +19,7 @@ export class AppComponent {
   macAddressTemp: string = null;
   hasImageId: boolean = false;
   imageId: string = null;
+  imageSrc: string = null;
   dimension =  {
       x: 1440,
       y: 793
@@ -72,6 +76,7 @@ export class AppComponent {
     this.imageId = data.deviceLocationUpdate.mapId;
     if(this.imageId == null || this.imageId == "")
       this.imageId = "6d22e37b407cf201500b23f17ce45054";
+      this.imageSrc = this.env.apiUrl+"/api/partners/v1/maps/"+this.imageId+"/image";
     this.locationService.getImageInfo(this.imageId).subscribe(
       imageInfo => {
         this.dimension.x = imageInfo.imageWidth;

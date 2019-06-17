@@ -21,7 +21,7 @@
 <div class="container" *ngIf="imageId != null">
   <div class="row">
       <div class="col">
-    <app-image-map #imgMap src="http://localhost:9090/api/partners/v1/maps/{{imageId}}/image" markerRadius="3" [markers]="markers" (mark)="onMark($event)"
+    <app-image-map #imgMap [src]="imageSrc" markerRadius="3" [markers]="markers" (mark)="onMark($event)"
     (change)="onChange($event)"></app-image-map>
   </div>
 </div>
