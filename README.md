@@ -67,3 +67,5 @@ Once all the applications are started,
 3) By providing the Device MAC Address, Device can be detected and located.
 4) Given user current location is plotted in the map using small red dot icon.
 5) Given user locatoin updates starting from the time of request are listed below the map
+
+[![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/CiscoDevNet/DNASpaces-FirehoseAPI-DetectAndLocate)
