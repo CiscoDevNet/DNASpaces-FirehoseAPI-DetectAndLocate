@@ -18,6 +18,7 @@ package com.cisco.dnaspaces.client;
 
 import com.cisco.dnaspaces.consumers.JsonEventConsumer;
 import com.cisco.dnaspaces.exceptions.FireHoseAPIException;
+import com.cisco.dnaspaces.utils.ConfigUtil;
 import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
@@ -26,6 +27,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -36,10 +40,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.time.Instant;
+import java.util.Properties;
 
 public class FireHoseAPIClient implements Closeable {
 
     private static final Logger log = LogManager.getLogger(FireHoseAPIClient.class);
+    private static final Properties config = ConfigUtil.getConfig();
     final String API_URL;
     final String API_KEY;
     long fromTimeStampAdvanceWindow;
@@ -81,18 +87,36 @@ public class FireHoseAPIClient implements Closeable {
             throw new FireHoseAPIException("Event Data consumer not set");
         }
         HttpGet request = null;
+        KafkaProducer<String, String> producer = null;
+        // read kafka related configurations
+        final Boolean isKafkaEnabled = Boolean.valueOf(config.getProperty("kafka.enabled"));
+        final String topicName = config.getProperty("kafka.topic.name");
+        final String eventKeyProperty = config.getProperty("kafka.event.key.property");
+        // create Kafka producer only if kafka is enabled
+        if(isKafkaEnabled) {
+            Properties options = new Properties();
+            options.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getProperty("kafka.bootstrap.servers"));
+            options.put(ProducerConfig.ACKS_CONFIG, config.getProperty("kafka.acks"));
+            options.put(ProducerConfig.RETRIES_CONFIG, config.getProperty("kafka.retries"));
+            options.put(ProducerConfig.BATCH_SIZE_CONFIG, config.getProperty("kafka.batch.size"));
+            options.put(ProducerConfig.LINGER_MS_CONFIG, config.getProperty("kafka.linger.ms"));
+            options.put(ProducerConfig.BUFFER_MEMORY_CONFIG, config.getProperty("kafka.buffer.memory"));
+            options.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, config.getProperty("kafka.key.serializer"));
+            options.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, config.getProperty("kafka.value.serializer"));
+            producer = new KafkaProducer(options);
+        }
         try {
             request = this.getRequest(this.API_URL);
             log.debug("Executing GET request over http client. URL :: " + request.getURI().toString());
             HttpResponse response = httpclient.execute(request);
             log.debug("GET request executed. Received status code :: " + response.getStatusLine().getStatusCode());
             int statusCode = response.getStatusLine().getStatusCode();
-            if(statusCode >= 300 && statusCode == 399){
+            if (statusCode >= 300 && statusCode == 399) {
                 String location = redirectHandler(response);
                 throw new FireHoseAPIException("Couldn't startConsumeEvents", response.getStatusLine().getStatusCode());
-            } else if(statusCode >= 400 && statusCode == 499){
+            } else if (statusCode >= 400 && statusCode == 499) {
                 throw new FireHoseAPIException("Couldn't startConsumeEvents", response.getStatusLine().getStatusCode());
-            } else if(statusCode >= 500 && statusCode == 599){
+            } else if (statusCode >= 500 && statusCode == 599) {
                 throw new FireHoseAPIException("Couldn't startConsumeEvents", response.getStatusLine().getStatusCode());
             } else if (response.getStatusLine().getStatusCode() != 200) {
                 log.error("Response status code :: " + response.getStatusLine().getStatusCode());
@@ -103,16 +127,24 @@ public class FireHoseAPIClient implements Closeable {
             while ((line = rd.readLine()) != null) {
                 JSONObject eventData = new JSONObject(line);
                 consumer.accept(eventData);
+                if (isKafkaEnabled && producer != null) {
+                    producer.send(new ProducerRecord(topicName, eventData.getString(eventKeyProperty), eventData.toString()));
+                }
             }
         } catch (IOException | URISyntaxException e) {
             throw new FireHoseAPIException(e);
         } finally {
             log.info("request has been ended");
             request.releaseConnection();
+            // flush and close Kafka Producer
+            if (isKafkaEnabled && producer != null) {
+                producer.flush();
+                producer.close();
+            }
         }
     }
 
-    private HttpGet getRequest(String url) throws URISyntaxException{
+    private HttpGet getRequest(String url) throws URISyntaxException {
         URIBuilder uriBuilder = new URIBuilder(url);
         uriBuilder.setPath("/api/partners/v1/firehose/events");
         if (this.consumer.getLastSuccessTimeStamp() > 0)
@@ -122,11 +154,11 @@ public class FireHoseAPIClient implements Closeable {
         return request;
     }
 
-    private String redirectHandler(HttpResponse response) throws FireHoseAPIException, URISyntaxException{
-        if(response.getHeaders(HttpHeaders.LOCATION) != null){
+    private String redirectHandler(HttpResponse response) throws FireHoseAPIException {
+        if (response.getHeaders(HttpHeaders.LOCATION) != null) {
             Header[] headers = response.getHeaders(HttpHeaders.LOCATION);
-            if(headers.length == 1){
-                String location =headers[0].getValue();
+            if (headers.length == 1) {
+                String location = headers[0].getValue();
                 return location;
             }
         }
@@ -137,7 +169,7 @@ public class FireHoseAPIClient implements Closeable {
         if (this.consumer == null)
             return Instant.now().toEpochMilli();
         long lastSuccessTimeStamp = this.consumer.getLastSuccessTimeStamp();
-        lastSuccessTimeStamp -= this.getFromTimeStampAdvanceWindow()*1000;
+        lastSuccessTimeStamp -= this.getFromTimeStampAdvanceWindow() * 1000;
         return lastSuccessTimeStamp;
     }
 
