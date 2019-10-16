@@ -90,7 +90,7 @@ public class FireHoseAPIClient implements Closeable {
         KafkaProducer<String, String> producer = null;
         // read kafka related configurations
         final Boolean isKafkaEnabled = Boolean.valueOf(config.getProperty("kafka.enabled"));
-        final String topicName = config.getProperty("kafka.topic.name");
+        final String topicNameProperty = config.getProperty("kafka.topic.name.property");
         final String eventKeyProperty = config.getProperty("kafka.event.key.property");
         // create Kafka producer only if kafka is enabled
         if(isKafkaEnabled) {
@@ -128,7 +128,7 @@ public class FireHoseAPIClient implements Closeable {
                 JSONObject eventData = new JSONObject(line);
                 consumer.accept(eventData);
                 if (isKafkaEnabled && producer != null) {
-                    producer.send(new ProducerRecord(topicName, eventData.getString(eventKeyProperty), eventData.toString()));
+                    producer.send(new ProducerRecord(eventData.getString(topicNameProperty), eventData.getString(eventKeyProperty), eventData.toString()));
                 }
             }
         } catch (IOException | URISyntaxException e) {
