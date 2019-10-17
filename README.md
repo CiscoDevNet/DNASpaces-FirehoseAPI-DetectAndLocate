@@ -6,12 +6,13 @@ Sample Application consists of 3 components namely
 1) API Server
 2) Proxy Server
 3) Client
+4) Kafka Consumer Application
 
 #### Clone the Repository and follow below instructions to run the application.
 
 ## 1) API Server
-The API Server consumes "Device Location Update" event and keeps updating Redis cache for each Device MAC address. Server also exposes an HTTP GET API which can be invoked with a MAC address param(mac), to get recent location update for the given mac
-
+  The API Server consumes "Device Location Update" event and keeps updating Redis cache for each Device MAC address. Server also exposes an HTTP GET API which can be invoked with a MAC address param(mac), to get recent location update for the given mac.
+  API server also writes every events into given corressponding Kafka topic(only if Kafka configuration is enable) which can be used by a Kafka client for further processing.
 
 ### Steps to run the API Server application
 1) Navigate to /server/ folder in the cloned repository.
@@ -25,7 +26,7 @@ http.port={{http server port}}
 
 ```
 3) Build the project by using ```mvn install```.
-4) Set the classes folder path in the classspath and execute com.cisco.dnaspaces.APIConsumer class to run the application.
+4) Set the classes folder path in the classspath and execute ``com.cisco.dnaspaces.APIConsumer`` class to run the application.
 
 
 ## 2) Proxy Server
@@ -61,11 +62,20 @@ The client application provides an UI to enter MAC address of client and when us
 3) In console move to /client directory of project
 4) Start the Angular application by using command ```ng serve```
 
+## 4) Kafka Consumer Application
+
+This is a standalone sample application which subscribes to the provided Kafka Topic into which API server pushes the event data. Kafka Consumer Application subscribes to given Kafka Topic and writes every received events to console.
+
+### Steps to run the Consumer application
+1) Navigate to /kafka client folder in the cloned repository
+2) Execute ``com.cisco.dnaspaces.clients.kafka.Application`` class to run the application.
+3) Application will prompt you Kafka specific configurations which you need to enter optionally. Leaving it blank will take default value.
+
 ### DEMO
 Once all the applications are started,
 1) Client UI can be accessed by opening http://localhost:4200 in the browser.
-3) By providing the Device MAC Address, Device can be detected and located.
-4) Given user current location is plotted in the map using small red dot icon.
-5) Given user locatoin updates starting from the time of request are listed below the map
+2) By providing the Device MAC Address, Device can be detected and located.
+3) Given user current location is plotted in the map using small red dot icon.
+4) Given user locatoin updates starting from the time of request are listed below the map
 
 [![published](https://static.production.devnetcloud.com/codeexchange/assets/images/devnet-published.svg)](https://developer.cisco.com/codeexchange/github/repo/CiscoDevNet/DNASpaces-FirehoseAPI-DetectAndLocate)
