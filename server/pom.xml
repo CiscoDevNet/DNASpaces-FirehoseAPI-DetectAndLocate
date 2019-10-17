@@ -50,7 +50,7 @@
             <artifactId>vertx-web</artifactId>
             <version>3.7.1</version>
         </dependency>
-
+        <!--Kafka Dependencies-->
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
