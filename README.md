@@ -2,7 +2,7 @@
 
 To realise the use case "Detect and Locate", this sample application consumes "Device Location Update" Event of the Cisco DNA Spaces Firehose API. This can be used as a starting point and reference for consuming the Cisco DNA Spaces Firehose API events.
 
-Sample Application consists of 3 components namely
+Sample Application consists of 4 components namely
 1) API Server
 2) Proxy Server
 3) Client
