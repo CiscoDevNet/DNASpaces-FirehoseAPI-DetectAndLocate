@@ -17,6 +17,7 @@
 package com.cisco.dnaspaces.consumers;
 
 
+import com.cisco.dnaspaces.utils.ConfigUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -27,6 +28,8 @@ public class JsonEventConsumer {
     private long lastSuccessTimeStamp = -1;
     private RedisFeeder redisFeeder;
 
+    private RocksDBFeeder rocksDBFeeder;
+
     public long getLastSuccessTimeStamp() {
         return lastSuccessTimeStamp;
     }
@@ -36,12 +39,22 @@ public class JsonEventConsumer {
     }
 
     public void accept(JSONObject eventData) {
-        if(redisFeeder == null)
-            redisFeeder = new RedisFeeder();
+        boolean isRedisEnabled = Boolean.parseBoolean(ConfigUtil.getConfig().getProperty("redis.feeder.enabled"));
+        boolean isRocksDBEnabled = Boolean.parseBoolean(ConfigUtil.getConfig().getProperty("rocksdb.feeder.enabled"));
         String eventType = eventData.getString("eventType");
-        log.debug("eventType : " + eventType);
+        log.info("eventType : " + eventType);
         log.trace(eventData.toString());
-        redisFeeder.accept(eventData);
+
+        if(isRedisEnabled) {
+            if(redisFeeder == null)
+                redisFeeder = new RedisFeeder();
+            redisFeeder.accept(eventData);
+        }
+        if(isRocksDBEnabled) {
+            if(rocksDBFeeder == null)
+                rocksDBFeeder = new RocksDBFeeder();
+            rocksDBFeeder.accept(eventData);
+        }
         this.setLastSuccessTimeStamp(System.currentTimeMillis());
 
     }

@@ -16,8 +16,8 @@
 
 package com.cisco.dnaspaces.utils;
 
-
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 /**
@@ -40,6 +40,14 @@ public class ConfigUtil {
         }
         return prop;
 
+    }
+
+    public static byte[] toByteArray(String input) {
+        return input.getBytes(StandardCharsets.UTF_8);
+    }
+
+    public static String toString(byte[] input) {
+        return new String(input);
     }
 
 

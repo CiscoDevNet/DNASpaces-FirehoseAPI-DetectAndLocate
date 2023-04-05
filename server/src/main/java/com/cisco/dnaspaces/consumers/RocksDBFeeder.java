@@ -1,58 +1,49 @@
-/*
- * Copyright (c) 2019 Cisco Systems, Inc. and/or its affiliates
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.cisco.dnaspaces.consumers;
-
 import com.cisco.dnaspaces.utils.ConfigUtil;
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
+import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.params.SetParams;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-public class RedisFeeder {
+public final class RocksDBFeeder {
+    private static final Logger log = LogManager.getLogger(RocksDBFeeder.class);
+    private static RocksDB rocksDBFeeder;
 
-    private static final Logger log = LogManager.getLogger(RedisFeeder.class);
-    private static Jedis jedis;
-
-    private static void init(){
+    private static void init() {
         try {
-            String redisHost = ConfigUtil.getConfig().getProperty("redis.host");
-            int redisPort =  Integer.parseInt(ConfigUtil.getConfig().getProperty("redis.port"));
-            if(redisHost!= null && !redisHost.isEmpty()) {
-                if(jedis == null) {
-                    jedis = new Jedis(redisHost, redisPort);
-                }
-            } else {
-                log.error("Please check redis host/port");
+            Path dbPath;
+            File dbDir;
+            RocksDB.loadLibrary();
+            dbPath = Paths.get(ConfigUtil.getConfig().getProperty("rocksdb.store.path"));
+            dbDir = dbPath.toFile();
+            if(dbDir.exists()) {
+                FileUtils.deleteDirectory(dbDir);
             }
-        } catch (Exception exception) {
-            log.error("Exception occurred on making redis connection");
+            dbDir.mkdirs();
+            rocksDBFeeder = RocksDB.open(dbPath.toString());
+        } catch (RocksDBException rocksDBException) {
+            log.error("Exception occurred on rocksdb ");
+            rocksDBException.printStackTrace();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    public static Jedis getJedis(){
-        if(jedis == null)
+    public static  RocksDB getRocksDB() {
+        if(rocksDBFeeder == null)
             init();
-        return jedis;
+        return rocksDBFeeder;
     }
 
-    public void accept(JSONObject eventData){
-        if(jedis == null)
+    public void accept(JSONObject eventData) {
+        if(rocksDBFeeder == null)
             init();
         try {
             String eventType = eventData.getString("eventType");
@@ -73,32 +64,38 @@ public class RedisFeeder {
                 }
             }
         } catch (Exception exception) {
-            log.error("Error on redis accept", exception);
+            log.error("Error on rocksdb accept", exception);
 
         }
     }
 
-
     public void write(String key, String value) {
-            jedis.set(ConfigUtil.toByteArray(key), ConfigUtil.toByteArray(value));
+        try {
+            rocksDBFeeder.put(ConfigUtil.toByteArray(key), ConfigUtil.toByteArray(value));
+        } catch (RocksDBException rocksDBException) {
+            log.error("Error on writing to rocksdb", rocksDBException);
+        }
     }
 
     public void delete(String key) {
-            jedis.del(ConfigUtil.toByteArray(key));
+        try {
+            rocksDBFeeder.delete(ConfigUtil.toByteArray(key));
+        } catch (RocksDBException rocksDBException) {
+            log.error("Error on deletion in rocksdb", rocksDBException);
+        }
     }
 
     public static String read(String key) {
         try {
-            byte [] value = jedis.get(ConfigUtil.toByteArray(key));
+            byte [] value = rocksDBFeeder.get(ConfigUtil.toByteArray(key));
             if(value != null) {
                 return ConfigUtil.toString(value);
             } else {
                 return null;
             }
-        } catch (Exception exception) {
-            log.error("Error on read from redis", exception);
+        } catch (RocksDBException rocksDBException) {
+            log.error("Error on read from rocksdb", rocksDBException);
             return null;
         }
     }
-
 }
