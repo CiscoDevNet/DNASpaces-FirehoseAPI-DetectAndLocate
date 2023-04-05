@@ -11,7 +11,7 @@ Sample Application consists of 3 components namely
 #### Clone the Repository and follow below instructions to run the application.
 
 ## 1) API Server
-  The API Server consumes "Device Location Update" event and keeps updating Redis cache for each Device MAC address. Server also exposes an HTTP GET API which can be invoked with a MAC address param(mac), to get recent location update for the given mac.
+  The API Server consumes "Device Location Update" event and keeps updating Redis/RocksDB cache (based on which one is enabled, by default uses rocksDB) for each Device MAC address. Server also exposes an HTTP GET API which can be invoked with a MAC address param(mac), to get recent location update for the given mac.
   API server also writes every events into given corressponding Kafka topic(only if Kafka configuration is enable) which can be used by a Kafka client for further processing.
 
 ### Steps to run the API Server application

@@ -34,31 +34,12 @@ public class APIHandler {
 
     public Router router(Vertx vertx) {
         Router router = Router.router(vertx);
-        //router.get("/findmac").handler(this::handleDetectAndLocate);
-        router.get("/locatemac").handler(this::handleDetectAndLocateMacFromRocksDB);
+        router.get("/findmac").handler(this::handleDetectAndLocateMac);
 
         return router;
     }
 
-    private void handleDetectAndLocate(RoutingContext routingContext){
-        String mac = routingContext.request().params().get("mac");
-        HttpServerResponse response = routingContext.response();
-        response.putHeader("Access-Control-Allow-Origin", "*");
-        log.info("mac :: "+mac);
-        if(mac != null) {
-            String key = "DEVICE_LOCATION_UPDATE::"+mac;
-            String redisValue = RedisFeeder.getJedis().get(key);
-            if(redisValue == null || redisValue.equals(""))
-                redisValue = "{}";
-            response.putHeader("content-type", "application/json; charset=utf-8");
-            response.setStatusCode(200);
-            response.end(redisValue);
-        } else {
-            sendError(response);
-        }
-    }
-
-    private void handleDetectAndLocateMacFromRocksDB(RoutingContext routingContext) {
+    private void handleDetectAndLocateMac(RoutingContext routingContext) {
         String mac = routingContext.request().params().get("mac");
         HttpServerResponse response = routingContext.response();
         response.putHeader("Access-Control-Allow-Origin", "*");
@@ -79,7 +60,7 @@ public class APIHandler {
                 value = RocksDBFeeder.read(key);
             }
             if(value == null || value.equals(""))
-                value = "{\"message\":\"No records found\"}";
+                value = "{\"message\":\"No records found for mac:"+  mac +"\"}";
             response.putHeader("content-type", "application/json; charset=utf-8");
             response.setStatusCode(200);
             response.end(value);
