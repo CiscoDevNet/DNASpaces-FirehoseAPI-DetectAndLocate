@@ -51,13 +51,12 @@ public class APIHandler {
             boolean isRedisEnabled = Boolean.parseBoolean(ConfigUtil.getConfig().getProperty("redis.feeder.enabled"));
             boolean isRocksDBEnabled = Boolean.parseBoolean(ConfigUtil.getConfig().getProperty("rocksdb.feeder.enabled"));
 
-            if(isRedisEnabled) {
-                log.info("read mac ::"+mac + " on redis");
-                value = RedisFeeder.read(key);
-            }
             if(isRocksDBEnabled) {
                 log.info("read mac ::"+mac + " on rocksdb");
                 value = RocksDBFeeder.read(key);
+            } else if(isRedisEnabled) {
+                log.info("read mac ::"+mac + " on redis");
+                value = RedisFeeder.read(key);
             }
             if(value == null || value.equals(""))
                 value = "{\"message\":\"No records found for mac:"+  mac +"\"}";

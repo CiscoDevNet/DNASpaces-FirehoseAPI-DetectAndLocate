@@ -49,17 +49,17 @@ public final class RocksDBFeeder {
             String eventType = eventData.getString("eventType");
             if ("DEVICE_LOCATION_UPDATE".equalsIgnoreCase(eventType)) {
                 String macAddress = eventData.getJSONObject("deviceLocationUpdate").getJSONObject("device").getString("macAddress");
-                log.info("published event to RocksDB:: DEVICE_LOCATION_UPDATE::"+macAddress);
+                log.debug("published event to RocksDB:: DEVICE_LOCATION_UPDATE::"+macAddress);
                 write("DEVICE_LOCATION_UPDATE::"+macAddress, eventData.toString());
             } else if("DEVICE_EXIT".equalsIgnoreCase(eventType)) {
                 String macAddress = eventData.getJSONObject("deviceExit").getJSONObject("device").getString("macAddress");
-                log.info("published event to RocksDB:: DEVICE_EXIT::"+macAddress);
+                log.debug("published event to RocksDB:: DEVICE_EXIT::"+macAddress);
                 delete("DEVICE_LOCATION_UPDATE::"+macAddress);
             } else if("DEVICE_PRESENCE".equalsIgnoreCase(eventType)) {
                 boolean isActive = eventData.getJSONObject("devicePresence").getBoolean("wasInActive");
                 if(!isActive) {
                     String macAddress = eventData.getJSONObject("devicePresence").getJSONObject("device").getString("macAddress");
-                    log.info("published event to RocksDB:: DEVICE_PRESENCE::"+macAddress + " status: false");
+                    log.debug("published event to RocksDB:: DEVICE_PRESENCE::"+macAddress + " status: false");
                     delete("DEVICE_LOCATION_UPDATE::"+macAddress);
                 }
             }

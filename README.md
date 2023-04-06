@@ -1,4 +1,3 @@
-# Cisco DNA Spaces Firehose API Sample Application - Detect And Locate
 
 To realise the use case "Detect and Locate", this sample application consumes "Device Location Update" Event of the Cisco DNA Spaces Firehose API. This can be used as a starting point and reference for consuming the Cisco DNA Spaces Firehose API events.
 
@@ -11,8 +10,9 @@ Sample Application consists of 3 components namely
 #### Clone the Repository and follow below instructions to run the application.
 
 ## 1) API Server
-  The API Server consumes "Device Location Update" event and keeps updating Redis/RocksDB cache (based on which one is enabled, by default uses rocksDB) for each Device MAC address. Server also exposes an HTTP GET API which can be invoked with a MAC address param(mac), to get recent location update for the given mac.
-  API server also writes every events into given corressponding Kafka topic(only if Kafka configuration is enable) which can be used by a Kafka client for further processing.
+The API Server consumes "Device Location Update" event and keeps updating Redis/RocksDB cache (based on which one is enabled, by default uses rocksDB) for each Device MAC address. Server also exposes an HTTP GET API which can be invoked with a MAC address param(mac), to get recent location update for the given mac.
+API server also writes every events into given corressponding Kafka topic(only if Kafka configuration is enable) which can be used by a Kafka client for further processing.
+> **_NOTE:_**  Regaridng RocksDB/Redis enable either any on of them, incase of both RocksDB will be considered.
 
 ### Steps to run the API Server application
 1) Navigate to /server/ folder in the cloned repository.
@@ -23,6 +23,9 @@ api.key={{Firehose API Key}}
 api.url={{Firehose API URL}}
 
 http.port={{http server port}}
+
+redis.feeder.enabled=false
+rocksdb.feeder.enabled=true
 
 ```
 3) Build the project by using ```mvn install```.
