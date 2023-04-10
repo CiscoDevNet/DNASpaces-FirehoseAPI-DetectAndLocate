@@ -54,7 +54,7 @@ public class APIConsumer {
 
         if(!Boolean.parseBoolean(ConfigUtil.getConfig().getProperty("rocksdb.feeder.enabled")) && !Boolean.parseBoolean(ConfigUtil.getConfig().getProperty("redis.feeder.enabled")) &&
                 !Boolean.parseBoolean(ConfigUtil.getConfig().getProperty("kafka.enabled"))) {
-            log.error("Please enable RocksDB, Redis Cache or Kafka Client for the processing.");
+            log.error("Please enable any one of the persistence configuration(RocksDB, Redis Cache or Kafka Client) for the processing.");
             System.exit(0);
 
         }
