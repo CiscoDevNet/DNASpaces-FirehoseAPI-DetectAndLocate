@@ -22,6 +22,7 @@ import com.cisco.dnaspaces.exceptions.FireHoseAPIException;
 import com.cisco.dnaspaces.server.HTTPVerticle;
 import com.cisco.dnaspaces.utils.ConfigUtil;
 import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -51,9 +52,16 @@ public class APIConsumer {
         client.setConsumer(consumer);
         client.setFromTimeStampAdvanceWindow(fromTimeStampAdvanceWindow);
 
+        if(!Boolean.parseBoolean(ConfigUtil.getConfig().getProperty("rocksdb.feeder.enabled")) && !Boolean.parseBoolean(ConfigUtil.getConfig().getProperty("redis.feeder.enabled")) &&
+                !Boolean.parseBoolean(ConfigUtil.getConfig().getProperty("kafka.enabled"))) {
+            log.error("Please enable any one of the persistence configuration(RocksDB, Redis Cache or Kafka Client) for the processing.");
+            System.exit(0);
 
-        Vertx vertx = Vertx.vertx();
-        vertx.deployVerticle(new HTTPVerticle());
+        }
+        VertxOptions options = new VertxOptions();
+        options.setBlockedThreadCheckInterval(3601000);
+        Vertx.vertx(options).deployVerticle(new HTTPVerticle());
+        //vertx.deployVerticle(new HTTPVerticle());
 
         Integer executionCount = 0;
         // loop indefinitely to reconnect
@@ -71,40 +79,6 @@ public class APIConsumer {
                 break;
             }
         }
-
-        /*WSServer wsServer = null;
-        try {
-            // create a web socket server and set it to counter utility which will send messages to client
-            wsServer = WSServer.getWsServer(8887);
-            Integer executionCount = 0;
-            // loop indefinitely to reconnect
-            while (true) {
-                // exponential backoff time to retry
-                waitBeforeRetry(executionCount++ % retryCutoff);
-                log.trace("Connecting to FireHose API. Attempt : " + executionCount);
-                try {
-                    client.startConsumeEvents();
-                } catch (FireHoseAPIException e) {
-                    log.error("Couldn't connect to API " + e.getMessage());
-                    if (canRetry(e)) {
-                        continue;
-                    }
-                    break;
-                }
-            }
-        } catch (UnknownHostException e) {
-            log.error("Couldn't create Web Socket server :: " + e.getMessage());
-        } finally {
-            try {
-                if (wsServer != null) {
-                    log.debug("Stopping WSServer");
-                    wsServer.stop();
-                    log.info("WSServer stopped");
-                }
-            } catch (Exception e) {
-                log.error("Couldn't close WSServer properly");
-            }
-        }*/
 
     }
 

@@ -16,37 +16,53 @@
 
 package com.cisco.dnaspaces.server.handler;
 
+import com.cisco.dnaspaces.consumers.RocksDBFeeder;
 import com.cisco.dnaspaces.consumers.RedisFeeder;
+import com.cisco.dnaspaces.utils.ConfigUtil;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.rocksdb.RocksDBException;
+
+import java.nio.charset.StandardCharsets;
 
 public class APIHandler {
     private static final Logger log = LogManager.getLogger(APIHandler.class);
 
     public Router router(Vertx vertx) {
         Router router = Router.router(vertx);
-        router.get("/findmac").handler(this::handleDetectAndLocate);
+        router.get("/findmac").handler(this::handleDetectAndLocateMac);
 
         return router;
     }
 
-    private void handleDetectAndLocate(RoutingContext routingContext){
+    private void handleDetectAndLocateMac(RoutingContext routingContext) {
         String mac = routingContext.request().params().get("mac");
         HttpServerResponse response = routingContext.response();
         response.putHeader("Access-Control-Allow-Origin", "*");
         log.info("mac :: "+mac);
         if(mac != null) {
             String key = "DEVICE_LOCATION_UPDATE::"+mac;
-            String redisValue = RedisFeeder.getJedis().get(key);
-            if(redisValue == null || redisValue.equals(""))
-                redisValue = "{}";
+            String value = null;
+
+            boolean isRedisEnabled = Boolean.parseBoolean(ConfigUtil.getConfig().getProperty("redis.feeder.enabled"));
+            boolean isRocksDBEnabled = Boolean.parseBoolean(ConfigUtil.getConfig().getProperty("rocksdb.feeder.enabled"));
+
+            if(isRocksDBEnabled) {
+                log.info("read mac ::"+mac + " on rocksdb");
+                value = RocksDBFeeder.read(key);
+            } else if(isRedisEnabled) {
+                log.info("read mac ::"+mac + " on redis");
+                value = RedisFeeder.read(key);
+            }
+            if(value == null || value.equals(""))
+                value = "{\"message\":\"No records found for mac:"+  mac +"\"}";
             response.putHeader("content-type", "application/json; charset=utf-8");
             response.setStatusCode(200);
-            response.end(redisValue);
+            response.end(value);
         } else {
             sendError(response);
         }
