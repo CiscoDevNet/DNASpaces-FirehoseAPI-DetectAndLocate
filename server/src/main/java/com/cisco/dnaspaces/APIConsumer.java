@@ -52,7 +52,12 @@ public class APIConsumer {
         client.setConsumer(consumer);
         client.setFromTimeStampAdvanceWindow(fromTimeStampAdvanceWindow);
 
+        if(!Boolean.parseBoolean(ConfigUtil.getConfig().getProperty("rocksdb.feeder.enabled")) && !Boolean.parseBoolean(ConfigUtil.getConfig().getProperty("redis.feeder.enabled")) &&
+                !Boolean.parseBoolean(ConfigUtil.getConfig().getProperty("kafka.enabled"))) {
+            log.error("Please enable RocksDB, Redis Cache or Kafka Client for the processing.");
+            System.exit(0);
 
+        }
         VertxOptions options = new VertxOptions();
         options.setBlockedThreadCheckInterval(3601000);
         Vertx.vertx(options).deployVerticle(new HTTPVerticle());
