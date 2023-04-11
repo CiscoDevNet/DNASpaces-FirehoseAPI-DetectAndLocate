@@ -1,7 +1,7 @@
 
-To realise the use case "Detect and Locate", this sample application consumes "Device Location Update" Event of the Cisco DNA Spaces Firehose API. This can be used as a starting point and reference for consuming the Cisco DNA Spaces Firehose API events.
+To realise the use case "Detect and Locate", this sample application consumes "Device Location Update" Event of the Cisco Spaces Firehose API. This can be used as a starting point and reference for consuming the Cisco Spaces Firehose API events.
 
-Sample Application consists of 3 components namely
+Sample Application consists of the below components
 1) API Server
 2) Proxy Server
 3) Client
@@ -12,7 +12,7 @@ Sample Application consists of 3 components namely
 ## 1) API Server
 The API Server consumes "DEVICE_LOCATION_UPDATE" event and keeps updating RocksDB or Redis Cache (based on which one is enabled, by default uses RocksDB) for each Device MAC address. Server also exposes an HTTP GET API which can be invoked with a MAC address param(mac), to get recent location update for the given mac.
 API server also writes every event into given corresponding Kafka topic(only if Kafka configuration is enabled) which can be used by a Kafka client for further processing.
-> **_NOTE:_**  Regarding RocksDB, Redis Cache enable any on of them, in case of both RocksDB will be considered.
+> **_NOTE:_**  Regarding RocksDB & Redis Cache, enable any one of them, in case of both are enabled then RocksDB will be considered for pulling data for the HTTP GET API.
 
 ### Steps to run the API Server application
 1) Navigate to /server/ folder in the cloned repository.
