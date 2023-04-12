@@ -45,15 +45,14 @@ public class JsonEventConsumer {
         log.info("eventType : " + eventType);
         log.trace(eventData.toString());
 
-        if(isRedisEnabled) {
-            if(redisFeeder == null)
-                redisFeeder = new RedisFeeder();
-            redisFeeder.accept(eventData);
-        }
         if(isRocksDBEnabled) {
             if(rocksDBFeeder == null)
                 rocksDBFeeder = new RocksDBFeeder();
             rocksDBFeeder.accept(eventData);
+        } else if(isRedisEnabled) {
+            if(redisFeeder == null)
+                redisFeeder = new RedisFeeder();
+            redisFeeder.accept(eventData);
         }
         this.setLastSuccessTimeStamp(System.currentTimeMillis());
 

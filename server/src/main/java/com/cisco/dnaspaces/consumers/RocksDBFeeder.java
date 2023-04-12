@@ -8,7 +8,6 @@ import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -56,8 +55,8 @@ public final class RocksDBFeeder {
                 log.debug("published event to RocksDB:: DEVICE_EXIT::"+macAddress);
                 delete("DEVICE_LOCATION_UPDATE::"+macAddress);
             } else if("DEVICE_PRESENCE".equalsIgnoreCase(eventType)) {
-                boolean isActive = eventData.getJSONObject("devicePresence").getBoolean("wasInActive");
-                if(!isActive) {
+                String presenceEventType = eventData.getJSONObject("devicePresence").getString("presenceEventType");
+                if(presenceEventType.equalsIgnoreCase("DEVICE_EXIT_EVENT")) {
                     String macAddress = eventData.getJSONObject("devicePresence").getJSONObject("device").getString("macAddress");
                     log.debug("published event to RocksDB:: DEVICE_PRESENCE::"+macAddress + " status: false");
                     delete("DEVICE_LOCATION_UPDATE::"+macAddress);
